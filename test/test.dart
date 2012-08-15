@@ -4,9 +4,7 @@
 void main() {
   var zip = new Zip(new Path('test.zip'));
 
-  zip.extractTo(new Path("${new Directory.current()}/test-extraction/"));
-
-  //print(zip.files); // It's null, as long as we haven't opened the Zip or modified it.
+  zip.extractTo(new Path.fromNative("${new Directory.current().path}/test-extraction/"));
 
   /*
   zip.open().then((error) {
