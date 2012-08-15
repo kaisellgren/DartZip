@@ -64,15 +64,29 @@ class Zip {
   Future<Exception> extractTo(Path path) {
     var completer = new Completer();
 
+    // This method extracts every file, and we will call this later.
     void extract() {
-      // Extract every file.
-      this.files.forEach((CentralDirectoryFileHeader header) {
-        //print(new String.fromCharCodes(header));
-        print(header.localFileHeader.filename);
-        print(header.localFileHeader.content);
-      });
+      // Create the target directory if needed.
+      var directory = new Directory.fromPath(path);
+      directory.create().then((directory) {
 
-      completer.complete(null);
+        // Extract every file.
+        this.files.forEach((CentralDirectoryFileHeader header) {
+          var filename = header.localFileHeader.filename;
+          var content = header.localFileHeader.content;
+
+          var file = new File.fromPath(path.append(filename));
+
+          // Open the file for writing.
+          file.open(FileMode.WRITE).then((RandomAccessFile raf) {
+
+            // Write all bytes and then close the file.
+            raf.writeList(content, 0, content.length).then((trash) => raf.close());
+          });
+        });
+
+        completer.complete(null);
+      });
     }
 
     // If the Zip is not yet opened, open it first before we can extract it.
