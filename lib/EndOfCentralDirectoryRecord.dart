@@ -15,17 +15,14 @@
  * Creates a new instance of the End of Central Directory Record.
  */
 class EndOfCentralDirectoryRecord {
-  List<int> _data;
-
-  var signature = Zip.END_OF_CENTRAL_DIRECTORY_RECORD_SIGNATURE;
+  List<int> _chunk;
   var totalCentralDirectoryEntries;
   var centralDirectorySize;
   var centralDirectoryOffset;
   var zipFileCommentLength;
   var zipFileComment;
 
-  EndOfCentralDirectoryRecord(List<int> data) {
-    this._data = data;
+  EndOfCentralDirectoryRecord(List<int> this._chunk) {
     this._process();
   }
 
@@ -50,10 +47,10 @@ class EndOfCentralDirectoryRecord {
     //   .ZIP file comment length        2 bytes
     //   .ZIP file comment               (variable size)
 
-    this.totalCentralDirectoryEntries = bytesToValue(this._data.getRange(10, 2));
-    this.centralDirectorySize = bytesToValue(this._data.getRange(12, 4));
-    this.centralDirectoryOffset = bytesToValue(this._data.getRange(16, 4));
-    this.zipFileCommentLength = bytesToValue(this._data.getRange(20, 2));
-    this.zipFileComment = bytesToValue(this._data.getRange(22, this.zipFileCommentLength));
+    this.totalCentralDirectoryEntries = bytesToValue(this._chunk.getRange(10, 2));
+    this.centralDirectorySize = bytesToValue(this._chunk.getRange(12, 4));
+    this.centralDirectoryOffset = bytesToValue(this._chunk.getRange(16, 4));
+    this.zipFileCommentLength = bytesToValue(this._chunk.getRange(20, 2));
+    this.zipFileComment = bytesToValue(this._chunk.getRange(22, this.zipFileCommentLength));
   }
 }

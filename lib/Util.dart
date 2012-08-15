@@ -14,8 +14,8 @@ bytesToValue(List<int> bytes) {
 }
 
 /**
-* Returns true if the two given lists are equal.
-*/
+ * Returns true if the two given lists are equal.
+ */
 bool listsAreEqual(List one, List two) {
   var i = -1;
   return one.every((element) {

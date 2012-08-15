@@ -31,26 +31,64 @@ class Zip {
   CentralDirectory _centralDirectory;
   List files;
 
-  Zip(Path filePath) {
-    this._filePath = filePath;
-  }
+  Zip(Path this._filePath);
 
   /**
    * Open the Zip file for reading.
    *
-   * TODO: Return a Future?
+   * Returns a future which gives a string containing an error message, if such ever occurred.
    */
-  Future<int> open() {
+  Future<Exception> open() {
     var completer = new Completer();
 
     this._file = new File.fromPath(this._filePath);
 
     this._file.readAsBytes().then((bytes) {
       this._data = bytes;
-      this._process();
 
-      completer.complete(1);
+      try {
+        this._process();
+      } catch (Exception e) {
+        completer.completeException(e);
+      }
+
+      completer.complete(null);
     });
+
+    return completer.future;
+  }
+
+  /**
+   * Extracts the entire archive to the given path.
+   */
+  Future<Exception> extractTo(Path path) {
+    var completer = new Completer();
+
+    void extract() {
+      // Extract every file.
+      this.files.forEach((CentralDirectoryFileHeader header) {
+        //print(new String.fromCharCodes(header));
+        print(header.localFileHeader.filename);
+        print(header.localFileHeader.content);
+      });
+
+      completer.complete(null);
+    }
+
+    // If the Zip is not yet opened, open it first before we can extract it.
+    if (this._centralDirectory == null) {
+      this.open().then((error) {
+
+        // Check for potential errors.
+        if (error) {
+          completer.completeException(error);
+        } else {
+          extract();
+        }
+      });
+    } else {
+      extract();
+    }
 
     return completer.future;
   }
@@ -69,10 +107,10 @@ class Zip {
     // Create Central Directory object.
     var centralDirectoryOffset = this._endOfCentralDirectoryRecord.centralDirectoryOffset;
     var centralDirectorySize = this._endOfCentralDirectoryRecord.centralDirectorySize;
-    this._centralDirectory = new CentralDirectory(this._data.getRange(centralDirectoryOffset, centralDirectorySize));
+    this._centralDirectory = new CentralDirectory(this._data.getRange(centralDirectoryOffset, centralDirectorySize), this._data);
 
-    // Create Local Files.
-    print(this._centralDirectory.fileHeaders[0].uncompressedSize);
+    // Let the user access file headers.
+    this.files = this._centralDirectory.fileHeaders;
   }
 
   /**

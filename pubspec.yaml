@@ -1,0 +1,3 @@
+dependencies:
+    CRC32:
+        git: git://github.com/kaisellgren/CRC32.git
