@@ -1,3 +1,8 @@
+name: dart_zip
+version: 0.0.0
+description: A zip parser, reader and generator written in pure Dart. It is memory efficient, requiring the minimum amount of memory to, for example, extract files.
+author: Kai Sellgren <kaisellgren@gmail.com>
+homepage: http://github.com/kaisellgren/DartZip
 dependencies:
     CRC32:
         git: git://github.com/kaisellgren/CRC32.git
