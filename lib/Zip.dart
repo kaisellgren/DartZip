@@ -6,12 +6,12 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
-#library('Zip');
+library Zip;
 
-#import('dart:io');
-#import('EndOfCentralDirectoryRecord.dart');
-#import('CentralDirectory.dart');
-#import('Util.dart');
+import 'dart:io';
+import 'end_of_central_directory_record.dart';
+import 'central_directory.dart';
+import 'util.dart';
 
 /**
  * This class represents a Zip file.
@@ -30,6 +30,7 @@ class Zip {
   EndOfCentralDirectoryRecord _endOfCentralDirectoryRecord;
   CentralDirectory _centralDirectory;
   List files;
+  bool _initialized = false;
 
   Zip(Path this._filePath);
 
@@ -40,6 +41,7 @@ class Zip {
    */
   Future<Exception> open() {
     var completer = new Completer();
+    _initialized = true;
 
     this._file = new File.fromPath(this._filePath);
 
@@ -48,7 +50,7 @@ class Zip {
 
       try {
         this._process();
-      } catch (Exception e) {
+      } on Exception catch (e) {
         completer.completeException(e);
       }
 
@@ -90,7 +92,7 @@ class Zip {
     }
 
     // If the Zip is not yet opened, open it first before we can extract it.
-    if (this._centralDirectory == null) {
+    if (this._initialized == false) {
       this.open().then((error) {
 
         // Check for potential errors.

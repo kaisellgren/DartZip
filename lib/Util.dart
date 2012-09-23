@@ -1,4 +1,6 @@
-#library('Util');
+library Util;
+
+import 'dart:math';
 
 /**
  * Converts the byte sequence to a numeric representation.
@@ -7,7 +9,7 @@ bytesToValue(List<int> bytes) {
   var value = 0;
 
   for (var i = 0, length = bytes.length; i < length; i++) {
-    value += bytes[i] * Math.pow(256, i);
+    value += bytes[i] * pow(256, i);
   }
 
   return value;

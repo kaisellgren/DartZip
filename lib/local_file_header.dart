@@ -6,11 +6,11 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
-#library('LocalFileHeader');
+library LocalFileHeader;
 
-#import('Zip.dart');
-#import('Util.dart');
-#import('dart:utf');
+import 'zip.dart';
+import 'util.dart';
+import 'dart:utf';
 
 class LocalFileHeader {
   List<int> _chunk;

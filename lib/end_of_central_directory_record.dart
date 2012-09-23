@@ -6,10 +6,10 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
-#library('EndOfCentralDirectoryRecord');
+library EndOfCentralDirectoryRecord;
 
-#import('Zip.dart');
-#import('Util.dart');
+import 'zip.dart';
+import 'util.dart';
 
 /**
  * Creates a new instance of the End of Central Directory Record.

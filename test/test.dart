@@ -1,8 +1,10 @@
-#import('../lib/Zip.dart');
-#import('dart:io');
+import '../lib/zip.dart';
+import 'dart:io';
 
 void main() {
-  var zip = new Zip(new Path('test.zip'));
+  final zip = new Zip(new Path('test.zip'));
+  //zip.addFileFromString('something.txt', 'content goes here');
+  //zip.save();
 
   zip.extractTo(new Path.fromNative("${new Directory.current().path}/test-extraction/"));
 

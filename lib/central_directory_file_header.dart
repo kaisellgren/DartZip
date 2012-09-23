@@ -6,12 +6,12 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
-#library('CentralDirectoryFileHeader');
+library CentralDirectoryFileHeader;
 
-#import('Zip.dart');
-#import('Util.dart');
-#import('LocalFileHeader.dart');
-#import('dart:utf');
+import 'zip.dart';
+import 'util.dart';
+import 'local_file_header.dart';
+import 'dart:utf';
 
 /**
  * Creates a new instance of the Central Directory File Header.
@@ -93,7 +93,6 @@ class CentralDirectoryFileHeader {
     this.fileComment = this._chunk.getRange(46 + this.filenameLength + this.extraFieldLength, this.fileCommentLength);
 
     // TODO: Are there scenarios where LocalFileHeader.compressedSize != CentralDirectoryFileHeader.compressedSize?
-    print("offset ${this.localHeaderOffset}");
     this.localFileHeader = new LocalFileHeader(this._data.getRange(this.localHeaderOffset, this._data.length - this.localHeaderOffset));
   }
 }

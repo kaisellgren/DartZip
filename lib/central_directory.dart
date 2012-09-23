@@ -6,11 +6,11 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
-#library('CentralDirectory');
+library CentralDirectory;
 
-#import('Zip.dart');
-#import('CentralDirectoryFileHeader.dart');
-#import('Util.dart');
+import 'zip.dart';
+import 'central_directory_file_header.dart';
+import 'util.dart';
 
 /**
  * Creates a new instance of the Central Directory.
@@ -65,22 +65,22 @@ class CentralDirectory {
     // 	file comment (variable size)
 
     var position = 0;
-    var signatureSize = Zip.CENTRAL_DIRECTORY_FILE_HEADER_SIGNATURE.length;
-    var signatureCodes = Zip.CENTRAL_DIRECTORY_FILE_HEADER_SIGNATURE.charCodes();
+    final signatureSize = Zip.CENTRAL_DIRECTORY_FILE_HEADER_SIGNATURE.length;
+    final signatureCodes = Zip.CENTRAL_DIRECTORY_FILE_HEADER_SIGNATURE.charCodes();
 
     // Create file headers. Loop until we have gone through the entire buffer.
     while (true) {
       // Calculate sizes for dynamic parts.
-      var filenameSize = bytesToValue(this._chunk.getRange(28, 2));
-      var extraFieldSize = bytesToValue(this._chunk.getRange(30, 2));
-      var fileCommentSize = bytesToValue(this._chunk.getRange(32, 2));
+      final filenameSize = bytesToValue(this._chunk.getRange(28, 2));
+      final extraFieldSize = bytesToValue(this._chunk.getRange(30, 2));
+      final fileCommentSize = bytesToValue(this._chunk.getRange(32, 2));
 
-      var dynamicSize = filenameSize + fileCommentSize + extraFieldSize;
-      var totalFileHeaderSize = dynamicSize + FILE_HEADER_STATIC_SIZE;
+      final dynamicSize = filenameSize + fileCommentSize + extraFieldSize;
+      final totalFileHeaderSize = dynamicSize + FILE_HEADER_STATIC_SIZE;
 
       // Push a new file header.
       if (this._chunk.length >= position + totalFileHeaderSize) {
-        var buffer = this._chunk.getRange(position, totalFileHeaderSize);
+        final buffer = this._chunk.getRange(position, totalFileHeaderSize);
         this.fileHeaders.add(new CentralDirectoryFileHeader(buffer, this._data));
 
         // Move the position pointer forward.
