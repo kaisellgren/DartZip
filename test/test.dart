@@ -2,11 +2,11 @@ import '../lib/zip.dart';
 import 'dart:io';
 
 void main() {
-  final zip = new Zip(new Path('test.zip'));
-  //zip.addFileFromString('something.txt', 'content goes here');
-  //zip.save();
+  final zip = new Zip('test.zip');
+  zip.addFileFromString('something.txt', 'content goes here');
+  zip.save();
 
-  zip.extractTo(new Path.fromNative("${new Directory.current().path}/test-extraction/"));
+  //zip.extractTo(new Path.fromNative("${new Directory.current().path}/test-extraction/"));
 
   /*
   zip.open().then((error) {

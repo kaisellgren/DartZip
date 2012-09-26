@@ -13,27 +13,53 @@ import 'util.dart';
 import 'dart:utf';
 
 class LocalFileHeader {
-  List<int> _chunk;
   List<int> content;
-  var versionNeededToExtract;
-  var generalPurposeBitFlag;
-  var compressionMethod;
-  var lastModFileTime;
-  var lastModifiedFileTime;
-  var lastModifiedFileDate;
-  var crc32;
+
+  var versionNeededToExtract = [0x00, 0x00];
+  var generalPurposeBitFlag = [0x00, 0x00];
+  var compressionMethod = [0x00, 0x00];
+  var lastModifiedFileTime = [0x00, 0x00];
+  var lastModifiedFileDate = [0x00, 0x00];
+  int crc32;
   var compressedSize;
   var uncompressedSize;
   var filenameLength;
   var extraFieldLength;
-  var filename;
-  var extraField;
+  var filename = '';
+  var extraField = [];
 
-  LocalFileHeader(List<int> this._chunk) {
-    this._process();
+  LocalFileHeader();
+
+  /**
+   * Returns the bytes for this header.
+   */
+  List<int> save() {
+    var bytes = new List<int>();
+
+    bytes.addAll(Zip.LOCAL_FILE_HEADER_SIGNATURE.charCodes());
+    bytes.addAll(versionNeededToExtract);
+    bytes.addAll(generalPurposeBitFlag);
+    bytes.addAll(compressionMethod);
+    bytes.addAll(lastModifiedFileTime);
+    bytes.addAll(lastModifiedFileDate);
+    bytes.addAll(valueToBytes(crc32, 4));
+    bytes.addAll(valueToBytes(compressedSize, 4));
+    bytes.addAll(valueToBytes(uncompressedSize, 4));
+    bytes.addAll(valueToBytes(filename.length, 2));
+    bytes.addAll(valueToBytes(extraField.length, 2));
+    bytes.addAll(filename.charCodes());
+    bytes.addAll(extraField);
+    bytes.addAll(content);
+
+    return bytes;
   }
 
-  void _process() {
+  /**
+   * Instantiates a new Local File Header based on the chunk of data.
+   *
+   * Every property will be set according to the bytes in the chunk.
+   */
+  LocalFileHeader.fromData(List<int> chunk) {
     // Local file header:
     //
     // local file header signature     4 bytes  (0x04034b50)
@@ -51,24 +77,24 @@ class LocalFileHeader {
     // file name (variable size)
     // extra field (variable size)
 
-    assert(this._chunk.getRange(0, 4) == Zip.LOCAL_FILE_HEADER_SIGNATURE);
+    assert(chunk.getRange(0, 4) == Zip.LOCAL_FILE_HEADER_SIGNATURE);
 
-    this.versionNeededToExtract = this._chunk.getRange(4, 2);
-    this.generalPurposeBitFlag = this._chunk.getRange(6, 2);
-    this.compressionMethod = this._chunk.getRange(8, 2);
-    this.lastModifiedFileTime = this._chunk.getRange(10, 2);
-    this.lastModifiedFileDate = this._chunk.getRange(12, 2);
-    this.crc32 = this._chunk.getRange(14, 4);
-    this.compressedSize = bytesToValue(this._chunk.getRange(18, 4));
-    this.uncompressedSize = bytesToValue(this._chunk.getRange(22, 4));
-    this.filenameLength = bytesToValue(this._chunk.getRange(26, 2));
-    this.extraFieldLength = bytesToValue(this._chunk.getRange(28, 2));
-    this.filename = new String.fromCharCodes(this._chunk.getRange(30, this.filenameLength));
+    versionNeededToExtract = chunk.getRange(4, 2);
+    generalPurposeBitFlag = chunk.getRange(6, 2);
+    compressionMethod = chunk.getRange(8, 2);
+    lastModifiedFileTime = chunk.getRange(10, 2);
+    lastModifiedFileDate = chunk.getRange(12, 2);
+    crc32 = bytesToValue(chunk.getRange(14, 4));
+    compressedSize = bytesToValue(chunk.getRange(18, 4));
+    uncompressedSize = bytesToValue(chunk.getRange(22, 4));
+    filenameLength = bytesToValue(chunk.getRange(26, 2));
+    extraFieldLength = bytesToValue(chunk.getRange(28, 2));
+    filename = new String.fromCharCodes(chunk.getRange(30, filenameLength));
 
-    if (this.extraFieldLength) {
-      this.extraField = this._chunk.getRange(30 + this.filenameLength, this.extraFieldLength);
+    if (extraFieldLength) {
+      extraField = chunk.getRange(30 + filenameLength, extraFieldLength);
     }
 
-    this.content = this._chunk.getRange(30 + this.filenameLength + this.extraFieldLength, this.compressedSize);
+    content = chunk.getRange(30 + filenameLength + extraFieldLength, compressedSize);
   }
 }

@@ -17,16 +17,16 @@ import 'dart:utf';
  * Creates a new instance of the Central Directory File Header.
  */
 class CentralDirectoryFileHeader {
-  List<int> _chunk;
-  List<int> _data;
+  List<int> content;
   LocalFileHeader localFileHeader;
-  var versionMadeBy;
-  var versionNeededToExtract;
-  var generalPurposeBitFlag;
-  var compressionMethod;
-  var lastModifiedFileTime;
-  var lastModifiedFileDate;
-  var crc32;
+
+  var versionMadeBy = [0x00, 0x00];
+  var versionNeededToExtract = [0x00, 0x00];
+  var generalPurposeBitFlag = [0x00, 0x00];
+  var compressionMethod = [0x00, 0x00];
+  var lastModifiedFileTime = [0x00, 0x00];
+  var lastModifiedFileDate = [0x00, 0x00];
+  int crc32;
   var compressedSize;
   var uncompressedSize;
   var filenameLength;
@@ -36,18 +36,60 @@ class CentralDirectoryFileHeader {
   var internalFileAttributes;
   var externalFileAttributes;
   var localHeaderOffset;
-  var filename;
-  var extraField;
-  var fileComment;
+  var filename = '';
+  var extraField = [];
+  var fileComment = '';
 
-  CentralDirectoryFileHeader(List<int> this._chunk, List<int> this._data) {
-    this._process();
+  CentralDirectoryFileHeader();
+
+  /**
+   * Creates a new Central Directory File Header based on the given Local File Header.
+   */
+  CentralDirectoryFileHeader.fromLocalFileHeader(LocalFileHeader lfh) {
+    localFileHeader = lfh;
+
+    filename = lfh.filename;
+    crc32 = lfh.crc32;
+    compressedSize = lfh.compressedSize;
+    uncompressedSize = lfh.uncompressedSize;
   }
 
   /**
-   * Reads the data and sets the information to class members.
+   * Returns the bytes for this header.
    */
-  void _process() {
+  List<int> save() {
+    var bytes = new List<int>();
+
+    bytes.addAll(Zip.CENTRAL_DIRECTORY_FILE_HEADER_SIGNATURE.charCodes());
+    bytes.addAll(versionMadeBy);
+    bytes.addAll(versionNeededToExtract);
+    bytes.addAll(generalPurposeBitFlag);
+    bytes.addAll(compressionMethod);
+    bytes.addAll(lastModifiedFileTime);
+    bytes.addAll(lastModifiedFileDate);
+    bytes.addAll(valueToBytes(crc32, 4));
+    bytes.addAll(valueToBytes(compressedSize, 4));
+    bytes.addAll(valueToBytes(uncompressedSize, 4));
+    bytes.addAll(valueToBytes(filename.length, 2));
+    bytes.addAll(valueToBytes(extraField.length, 2));
+    bytes.addAll(valueToBytes(fileComment.length, 2));
+    bytes.addAll(valueToBytes(diskNumberStart, 2));
+    bytes.addAll(valueToBytes(internalFileAttributes, 2));
+    bytes.addAll(valueToBytes(externalFileAttributes, 4));
+    bytes.addAll(valueToBytes(localHeaderOffset, 4));
+    bytes.addAll(filename.charCodes());
+    bytes.addAll(extraField);
+    bytes.addAll(fileComment.charCodes());
+
+    return bytes;
+  }
+
+  /**
+   * Instantiates a new Central Directory File Header based on the chunk of data.
+   *
+   * Every property will be set according to the bytes in the chunk.
+   */
+  CentralDirectoryFileHeader.fromData(List<int> chunk, List<int> this.content) {
     //  Central directory file header:
     //
     // 	central file header signature   4 bytes  (0x02014b50)
@@ -72,27 +114,27 @@ class CentralDirectoryFileHeader {
     // 	extra field (variable size)
     // 	file comment (variable size)
 
-    this.versionMadeBy = this._chunk.getRange(4, 2);
-    this.versionNeededToExtract = this._chunk.getRange(6, 2);
-    this.generalPurposeBitFlag = this._chunk.getRange(8, 2);
-    this.compressionMethod = this._chunk.getRange(10, 2);
-    this.lastModifiedFileTime = this._chunk.getRange(12, 2);
-    this.lastModifiedFileDate = this._chunk.getRange(14, 2);
-    this.crc32 = this._chunk.getRange(16, 4);
-    this.compressedSize = bytesToValue(this._chunk.getRange(20, 4));
-    this.uncompressedSize = bytesToValue(this._chunk.getRange(24, 4));
-    this.filenameLength = bytesToValue(this._chunk.getRange(28, 2));
-    this.extraFieldLength = bytesToValue(this._chunk.getRange(30, 2));
-    this.fileCommentLength = bytesToValue(this._chunk.getRange(32, 2));
-    this.diskNumberStart = bytesToValue(this._chunk.getRange(34, 2));
-    this.internalFileAttributes = bytesToValue(this._chunk.getRange(36, 2));
-    this.externalFileAttributes = bytesToValue(this._chunk.getRange(38, 4));
-    this.localHeaderOffset = bytesToValue(this._chunk.getRange(42, 4));
-    this.filename = new String.fromCharCodes(this._chunk.getRange(46, this.filenameLength));
-    this.extraField = this._chunk.getRange(46 + this.filenameLength, this.extraFieldLength);
-    this.fileComment = this._chunk.getRange(46 + this.filenameLength + this.extraFieldLength, this.fileCommentLength);
+    versionMadeBy = chunk.getRange(4, 2);
+    versionNeededToExtract = chunk.getRange(6, 2);
+    generalPurposeBitFlag = chunk.getRange(8, 2);
+    compressionMethod = chunk.getRange(10, 2);
+    lastModifiedFileTime = chunk.getRange(12, 2);
+    lastModifiedFileDate = chunk.getRange(14, 2);
+    crc32 = bytesToValue(chunk.getRange(16, 4));
+    compressedSize = bytesToValue(chunk.getRange(20, 4));
+    uncompressedSize = bytesToValue(chunk.getRange(24, 4));
+    filenameLength = bytesToValue(chunk.getRange(28, 2));
+    extraFieldLength = bytesToValue(chunk.getRange(30, 2));
+    fileCommentLength = bytesToValue(chunk.getRange(32, 2));
+    diskNumberStart = bytesToValue(chunk.getRange(34, 2));
+    internalFileAttributes = bytesToValue(chunk.getRange(36, 2));
+    externalFileAttributes = bytesToValue(chunk.getRange(38, 4));
+    localHeaderOffset = bytesToValue(chunk.getRange(42, 4));
+    filename = new String.fromCharCodes(chunk.getRange(46, filenameLength));
+    extraField = chunk.getRange(46 + filenameLength, extraFieldLength);
+    fileComment = new String.fromCharCodes(chunk.getRange(46 + filenameLength + extraFieldLength, fileCommentLength));
 
     // TODO: Are there scenarios where LocalFileHeader.compressedSize != CentralDirectoryFileHeader.compressedSize?
-    this.localFileHeader = new LocalFileHeader(this._data.getRange(this.localHeaderOffset, this._data.length - this.localHeaderOffset));
+    localFileHeader = new LocalFileHeader.fromData(content.getRange(localHeaderOffset, content.length - localHeaderOffset));
   }
 }

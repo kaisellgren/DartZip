@@ -16,23 +16,21 @@ import 'util.dart';
  * Creates a new instance of the Central Directory.
  */
 class CentralDirectory {
-  List<int> _chunk;
-  List<int> _data;
+  List<int> content;
 
   static final FILE_HEADER_STATIC_SIZE = 46; // The static size of the file header.
 
-  List<CentralDirectoryFileHeader> fileHeaders;
+  List<CentralDirectoryFileHeader> fileHeaders = new List();
   var digitalSignature;
 
-  CentralDirectory(List<int> this._chunk, List<int> this._data) {
-    this.fileHeaders = [];
-    this._process();
-  }
+  CentralDirectory();
 
   /**
-   * Reads the data and sets the information to class members.
+   * Instantiates a new Central Directory based on the chunk of data.
+   *
+   * The chunk will be parsed and appropriate Central Directory File Headers will be made.
    */
-  void _process() {
+  CentralDirectory.fromData(List<int> chunk, List<int> this.content) {
     // [file header 1]
     //   .
     //   .
@@ -71,23 +69,23 @@ class CentralDirectory {
     // Create file headers. Loop until we have gone through the entire buffer.
     while (true) {
       // Calculate sizes for dynamic parts.
-      final filenameSize = bytesToValue(this._chunk.getRange(28, 2));
-      final extraFieldSize = bytesToValue(this._chunk.getRange(30, 2));
-      final fileCommentSize = bytesToValue(this._chunk.getRange(32, 2));
+      final filenameSize = bytesToValue(chunk.getRange(28, 2));
+      final extraFieldSize = bytesToValue(chunk.getRange(30, 2));
+      final fileCommentSize = bytesToValue(chunk.getRange(32, 2));
 
       final dynamicSize = filenameSize + fileCommentSize + extraFieldSize;
       final totalFileHeaderSize = dynamicSize + FILE_HEADER_STATIC_SIZE;
 
       // Push a new file header.
-      if (this._chunk.length >= position + totalFileHeaderSize) {
-        final buffer = this._chunk.getRange(position, totalFileHeaderSize);
-        this.fileHeaders.add(new CentralDirectoryFileHeader(buffer, this._data));
+      if (chunk.length >= position + totalFileHeaderSize) {
+        final buffer = chunk.getRange(position, totalFileHeaderSize);
+        this.fileHeaders.add(new CentralDirectoryFileHeader.fromData(buffer, this.content));
 
         // Move the position pointer forward.
         position += totalFileHeaderSize;
 
         // Break out of the loop if the next 4 bytes do not match the right file header signature.
-        if (this._chunk.length >= position + signatureSize && !listsAreEqual(this._chunk.getRange(position, signatureSize), signatureCodes)) {
+        if (chunk.length >= position + signatureSize && !listsAreEqual(chunk.getRange(position, signatureSize), signatureCodes)) {
           break;
         }
       } else {
