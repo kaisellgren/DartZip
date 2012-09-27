@@ -46,7 +46,7 @@ import 'package:dart_zip/zip.dart';
 import 'dart:io';
 
 void main() {
-  var zip = new Zip(test.zip');
+  var zip = new Zip('test.zip');
   zip.addFileFromString('something.txt', 'content goes here');
   zip.save();
 }
