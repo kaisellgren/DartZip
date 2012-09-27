@@ -13,7 +13,7 @@ Add as a dependency to your ```pubspec.yaml```. For example:
 
 ```
 dependencies:
-  dart_zip:
+  zip:
     git: git://github.com/kaisellgren/DartZip.git
 ```
 
