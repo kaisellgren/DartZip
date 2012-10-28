@@ -4,5 +4,7 @@ description: A zip parser, reader and generator written in pure Dart. It is memo
 author: Kai Sellgren <kaisellgren@gmail.com>
 homepage: http://github.com/kaisellgren/DartZip
 dependencies:
-    crc32:
-        git: git://github.com/kaisellgren/CRC32.git
+  unittest:
+    sdk: unittest
+  crc32:
+    git: git://github.com/kaisellgren/CRC32.git

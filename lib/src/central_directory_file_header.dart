@@ -6,13 +6,6 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
-library CentralDirectoryFileHeader;
-
-import 'zip.dart';
-import 'util.dart';
-import 'local_file_header.dart';
-import 'dart:utf';
-
 /**
  * Creates a new instance of the Central Directory File Header.
  */

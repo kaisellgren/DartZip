@@ -1,4 +1,4 @@
-import '../lib/zip.dart';
+import 'package:zip/zip.dart';
 import 'dart:io';
 
 void main() {

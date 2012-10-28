@@ -6,12 +6,6 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
-library CentralDirectory;
-
-import 'zip.dart';
-import 'central_directory_file_header.dart';
-import 'util.dart';
-
 /**
  * Creates a new instance of the Central Directory.
  */

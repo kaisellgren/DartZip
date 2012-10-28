@@ -9,12 +9,14 @@
 library zip;
 
 import 'dart:io';
-import 'end_of_central_directory_record.dart';
-import 'central_directory.dart';
-import 'central_directory_file_header.dart';
-import 'local_file_header.dart';
-import 'util.dart';
+import 'dart:utf';
+import 'src/util.dart';
 import 'package:crc32/crc32.dart';
+
+part 'src/end_of_central_directory_record.dart';
+part 'src/central_directory.dart';
+part 'src/central_directory_file_header.dart';
+part 'src/local_file_header.dart';
 
 /**
  * This class represents a Zip file.
@@ -32,6 +34,9 @@ class Zip {
   EndOfCentralDirectoryRecord _endOfCentralDirectoryRecord = new EndOfCentralDirectoryRecord();
   CentralDirectory _centralDirectory = new CentralDirectory();
 
+  // Specifies how many files are being added to the Zip, but are still waiting to be read.
+  int _filesPendingAdditionCount = 0;
+
   Zip(path) {
     if (path is String)
       _filePath = new Path(path);
@@ -42,7 +47,8 @@ class Zip {
   /**
    * Saves the Zip archive.
    */
-  void save() {
+  Future save() {
+    var completer = new Completer();
     _file = new File.fromPath(this._filePath);
 
     _file.create().then((File file) {
@@ -77,9 +83,11 @@ class Zip {
         final buffer = _endOfCentralDirectoryRecord.save();
         raf.writeListSync(buffer, 0, buffer.length);
 
-        // TODO: Done saving, do something.
+        completer.complete(null);
       });
     });
+
+    return completer.future;
   }
 
   /**
@@ -113,10 +121,21 @@ class Zip {
 
   /**
    * Adds the data associated with the given filename to the Zip.
+   *
+   * The filename must be a full path. Folders will be generated for you.
    */
-  void addFileFromString(filename, String data) {
+  void addFileFromString(String filename, String data) {
+    this.addFileFromBytes(filename, data.charCodes());
+  }
+
+  /**
+   * Adds the data associated with the given filename to the Zip.
+   *
+   * The filename must be a full path. Folders will be generated for you.
+   */
+  void addFileFromBytes(String filename, List<int> data) {
     final fh = new LocalFileHeader();
-    fh.content = data.charCodes();
+    fh.content = data;
     fh.crc32 = CRC32.compute(fh.content);
     fh.uncompressedSize = data.length;
     fh.compressedSize = fh.uncompressedSize;
@@ -126,6 +145,26 @@ class Zip {
 
     _centralDirectory.fileHeaders.add(cdfh);
     _endOfCentralDirectoryRecord.totalCentralDirectoryEntries += 1;
+  }
+
+  /**
+   * Adds the contents of the specified file associated with the given filename.
+   *
+   * The filename must be a full path. Folders will be generated for you.
+   *
+   * For example: zip.addFileFromPath('myfile.txt', new Path('path/to/file.txt'));
+   */
+  Future addFileFromPath(String filename, Path path) {
+    var completer = new Completer();
+    _filesPendingAdditionCount += 1;
+
+    new File.fromPath(path).readAsBytes().then((List<int> data) {
+      addFileFromBytes(filename, data);
+      _filesPendingAdditionCount -= 1;
+      completer.complete(null);
+    });
+
+    return completer.future;
   }
 
   /**
