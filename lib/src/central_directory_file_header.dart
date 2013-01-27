@@ -6,6 +6,8 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
+part of zip;
+
 /**
  * Creates a new instance of the Central Directory File Header.
  */
@@ -53,7 +55,7 @@ class CentralDirectoryFileHeader {
   List<int> save() {
     var bytes = new List<int>();
 
-    bytes.addAll(Zip.CENTRAL_DIRECTORY_FILE_HEADER_SIGNATURE.charCodes());
+    bytes.addAll(Zip.CENTRAL_DIRECTORY_FILE_HEADER_SIGNATURE.charCodes);
     bytes.addAll(versionMadeBy);
     bytes.addAll(versionNeededToExtract);
     bytes.addAll(generalPurposeBitFlag);
@@ -70,9 +72,9 @@ class CentralDirectoryFileHeader {
     bytes.addAll(valueToBytes(internalFileAttributes, 2));
     bytes.addAll(valueToBytes(externalFileAttributes, 4));
     bytes.addAll(valueToBytes(localHeaderOffset, 4));
-    bytes.addAll(filename.charCodes());
+    bytes.addAll(filename.charCodes);
     bytes.addAll(extraField);
-    bytes.addAll(fileComment.charCodes());
+    bytes.addAll(fileComment.charCodes);
 
     return bytes;
   }

@@ -10,6 +10,7 @@ library zip;
 
 import 'dart:io';
 import 'dart:utf';
+import 'dart:async';
 import 'src/util.dart';
 import 'package:crc32/crc32.dart';
 
@@ -110,7 +111,7 @@ class Zip {
         _centralDirectory = new CentralDirectory.fromData(bytes.getRange(centralDirectoryOffset, centralDirectorySize), bytes);
 
       } on Exception catch (e) {
-        completer.completeException(e);
+        completer.completeError(e);
       }
 
       completer.complete(null);
@@ -125,7 +126,7 @@ class Zip {
    * The filename must be a full path. Folders will be generated for you.
    */
   void addFileFromString(String filename, String data) {
-    this.addFileFromBytes(filename, data.charCodes());
+    addFileFromBytes(filename, data.charCodes);
   }
 
   /**
@@ -207,8 +208,8 @@ class Zip {
       open().then((error) {
 
         // Check for potential errors.
-        if (error) {
-          completer.completeException(error);
+        if (error != null) {
+          completer.completeError(error);
         } else {
           extract();
         }
@@ -226,7 +227,7 @@ class Zip {
   int _getEndOfCentralDirectoryRecordPosition(bytes) {
     // I want to shoot the smart ass who had the great idea of having an arbitrary sized comment field in this header.
     final signatureSize = Zip.END_OF_CENTRAL_DIRECTORY_RECORD_SIGNATURE.length;
-    final signatureCodes = Zip.END_OF_CENTRAL_DIRECTORY_RECORD_SIGNATURE.charCodes();
+    final signatureCodes = Zip.END_OF_CENTRAL_DIRECTORY_RECORD_SIGNATURE.charCodes;
     final maxScanLength = 65536;
     final length = bytes.length;
     var position = length - signatureSize;

@@ -6,6 +6,8 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
+part of zip;
+
 /**
  * Creates a new instance of the End of Central Directory Record.
  */
@@ -27,7 +29,7 @@ class EndOfCentralDirectoryRecord {
   List<int> save() {
     var bytes = new List<int>();
 
-    bytes.addAll(Zip.END_OF_CENTRAL_DIRECTORY_RECORD_SIGNATURE.charCodes());
+    bytes.addAll(Zip.END_OF_CENTRAL_DIRECTORY_RECORD_SIGNATURE.charCodes);
     bytes.addAll(numberOfThisDisk);
     bytes.addAll(numberOfTheDiskWithTheStartOfTheCentralDirectory);
     bytes.addAll(totalCentralDirectoryEntriesOnThisDisk);
@@ -35,7 +37,7 @@ class EndOfCentralDirectoryRecord {
     bytes.addAll(valueToBytes(centralDirectorySize, 4));
     bytes.addAll(valueToBytes(centralDirectoryOffset, 4));
     bytes.addAll(valueToBytes(zipFileComment.length, 2));
-    bytes.addAll(zipFileComment.charCodes());
+    bytes.addAll(zipFileComment.charCodes);
 
     return bytes;
   }

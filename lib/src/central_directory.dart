@@ -6,6 +6,8 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
+part of zip;
+
 /**
  * Creates a new instance of the Central Directory.
  */
@@ -58,7 +60,7 @@ class CentralDirectory {
 
     var position = 0;
     final signatureSize = Zip.CENTRAL_DIRECTORY_FILE_HEADER_SIGNATURE.length;
-    final signatureCodes = Zip.CENTRAL_DIRECTORY_FILE_HEADER_SIGNATURE.charCodes();
+    final signatureCodes = Zip.CENTRAL_DIRECTORY_FILE_HEADER_SIGNATURE.charCodes;
 
     // Create file headers. Loop until we have gone through the entire buffer.
     while (true) {

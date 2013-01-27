@@ -6,6 +6,8 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
+part of zip;
+
 class LocalFileHeader {
   List<int> content;
 
@@ -30,7 +32,7 @@ class LocalFileHeader {
   List<int> save() {
     var bytes = new List<int>();
 
-    bytes.addAll(Zip.LOCAL_FILE_HEADER_SIGNATURE.charCodes());
+    bytes.addAll(Zip.LOCAL_FILE_HEADER_SIGNATURE.charCodes);
     bytes.addAll(versionNeededToExtract);
     bytes.addAll(generalPurposeBitFlag);
     bytes.addAll(compressionMethod);
@@ -41,7 +43,7 @@ class LocalFileHeader {
     bytes.addAll(valueToBytes(uncompressedSize, 4));
     bytes.addAll(valueToBytes(filename.length, 2));
     bytes.addAll(valueToBytes(extraField.length, 2));
-    bytes.addAll(filename.charCodes());
+    bytes.addAll(filename.charCodes);
     bytes.addAll(extraField);
     bytes.addAll(content);
 
