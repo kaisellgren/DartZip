@@ -1,4 +1,4 @@
-DartZip
+Zip
 ==
 A Zib library written in [Dart](http://dartlang.org).
 
