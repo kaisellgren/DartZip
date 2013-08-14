@@ -60,28 +60,28 @@ class CentralDirectory {
 
     var position = 0;
     final signatureSize = Zip.CENTRAL_DIRECTORY_FILE_HEADER_SIGNATURE.length;
-    final signatureCodes = Zip.CENTRAL_DIRECTORY_FILE_HEADER_SIGNATURE.charCodes;
+    final signatureCodes = Zip.CENTRAL_DIRECTORY_FILE_HEADER_SIGNATURE.codeUnits; // JPI charCodes
 
     // Create file headers. Loop until we have gone through the entire buffer.
     while (true) {
       // Calculate sizes for dynamic parts.
-      final filenameSize = bytesToValue(chunk.getRange(28, 2));
-      final extraFieldSize = bytesToValue(chunk.getRange(30, 2));
-      final fileCommentSize = bytesToValue(chunk.getRange(32, 2));
+      final filenameSize = bytesToValue(chunk.sublist(28, 28+2)); // JPI 
+      final extraFieldSize = bytesToValue(chunk.sublist(30, 30+2)); // JPI 
+      final fileCommentSize = bytesToValue(chunk.sublist(32, 32+ 2)); // JPI 
 
       final dynamicSize = filenameSize + fileCommentSize + extraFieldSize;
       final totalFileHeaderSize = dynamicSize + FILE_HEADER_STATIC_SIZE;
 
       // Push a new file header.
       if (chunk.length >= position + totalFileHeaderSize) {
-        final buffer = chunk.getRange(position, totalFileHeaderSize);
+        final buffer = chunk.sublist(position, position + totalFileHeaderSize); // JPI 
         this.fileHeaders.add(new CentralDirectoryFileHeader.fromData(buffer, this.content));
 
         // Move the position pointer forward.
         position += totalFileHeaderSize;
 
         // Break out of the loop if the next 4 bytes do not match the right file header signature.
-        if (chunk.length >= position + signatureSize && !listsAreEqual(chunk.getRange(position, signatureSize), signatureCodes)) {
+        if (chunk.length >= position + signatureSize && !listsAreEqual(chunk.sublist(position, position + signatureSize), signatureCodes)) { // JPI 
           break;
         }
       } else {

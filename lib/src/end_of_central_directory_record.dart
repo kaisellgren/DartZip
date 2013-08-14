@@ -65,13 +65,13 @@ class EndOfCentralDirectoryRecord {
     //   .ZIP file comment length        2 bytes
     //   .ZIP file comment               (variable size)
 
-    numberOfThisDisk = bytesToValue(chunk.getRange(4, 2));
-    numberOfTheDiskWithTheStartOfTheCentralDirectory = bytesToValue(chunk.getRange(6, 2));
-    totalCentralDirectoryEntriesOnThisDisk = bytesToValue(chunk.getRange(8, 2));
-    totalCentralDirectoryEntries = bytesToValue(chunk.getRange(10, 2));
-    centralDirectorySize = bytesToValue(chunk.getRange(12, 4));
-    centralDirectoryOffset = bytesToValue(chunk.getRange(16, 4));
-    zipFileCommentLength = bytesToValue(chunk.getRange(20, 2));
-    zipFileComment = new String.fromCharCodes(chunk.getRange(22, zipFileCommentLength));
+    numberOfThisDisk = bytesToValue(chunk.sublist(4, 6) /* JPI - getRange(4, 2) */);
+    numberOfTheDiskWithTheStartOfTheCentralDirectory = bytesToValue(chunk.sublist(6, 8)); /* getRange(6, 2)*/
+    totalCentralDirectoryEntriesOnThisDisk = bytesToValue(chunk.sublist(8, 10)); /* getRange(8, 2) */ 
+    totalCentralDirectoryEntries = bytesToValue(chunk.sublist(10, 12)); /* getRange(10, 2) */ 
+    centralDirectorySize = bytesToValue(chunk.sublist(12, 16)); /* getRange(12, 4) */ 
+    centralDirectoryOffset = bytesToValue(chunk.sublist(16, 20)); /* getRange(16, 4) */ 
+    zipFileCommentLength = bytesToValue(chunk.sublist(20, 22)); /* getRange(20, 2) */ 
+    zipFileComment = new String.fromCharCodes(chunk.sublist(22, 22 + zipFileCommentLength)); /* getRange(22, zipFileCommentLength) */
   }
 }

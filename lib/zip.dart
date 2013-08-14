@@ -103,12 +103,12 @@ class Zip {
       try {
         final position = _getEndOfCentralDirectoryRecordPosition(bytes);
 
-        _endOfCentralDirectoryRecord = new EndOfCentralDirectoryRecord.fromData(bytes.getRange(position, bytes.length - position));
+        _endOfCentralDirectoryRecord = new EndOfCentralDirectoryRecord.fromData(bytes.sublist(position, bytes.length /* - position */)); // JPI - removed getRange(position, bytes.length - position));
 
         // Create Central Directory object.
         final centralDirectoryOffset = _endOfCentralDirectoryRecord.centralDirectoryOffset;
         final centralDirectorySize = _endOfCentralDirectoryRecord.centralDirectorySize;
-        _centralDirectory = new CentralDirectory.fromData(bytes.getRange(centralDirectoryOffset, centralDirectorySize), bytes);
+        _centralDirectory = new CentralDirectory.fromData(bytes.sublist(centralDirectoryOffset, centralDirectoryOffset + centralDirectorySize), bytes); // JPI - replaced getRange
 
       } on Exception catch (e) {
         completer.completeError(e);
@@ -126,7 +126,7 @@ class Zip {
    * The filename must be a full path. Folders will be generated for you.
    */
   void addFileFromString(String filename, String data) {
-    addFileFromBytes(filename, data.charCodes);
+    addFileFromBytes(filename, data.codeUnits); // JPI - removed data.charCodes
   }
 
   /**
@@ -191,12 +191,17 @@ class Zip {
 
           final file = new File.fromPath(path.append(filename));
 
-          // Open the file for writing.
-          file.open(FileMode.WRITE).then((RandomAccessFile raf) {
-
-            // Write all bytes and then close the file.
-            raf.writeList(content, 0, content.length).then((trash) => raf.close());
-          });
+          // write contents to the file 
+          // JPI 
+          file.open(mode: FileMode.WRITE).then((RandomAccessFile raf) { // JPI 
+                  // Write all bytes and then close the file.
+                  raf.writeFrom(content, 0, content.length).then((trash) => raf.close()); // JPI - replaced writeList
+                  });
+          
+          // Alternative through write(): 
+          // var writer = file.openWrite(); 
+          // writer.write(content); 
+          // writer.close(); 
         });
 
         completer.complete(null);
@@ -227,7 +232,7 @@ class Zip {
   int _getEndOfCentralDirectoryRecordPosition(bytes) {
     // I want to shoot the smart ass who had the great idea of having an arbitrary sized comment field in this header.
     final signatureSize = Zip.END_OF_CENTRAL_DIRECTORY_RECORD_SIGNATURE.length;
-    final signatureCodes = Zip.END_OF_CENTRAL_DIRECTORY_RECORD_SIGNATURE.charCodes;
+    final signatureCodes = Zip.END_OF_CENTRAL_DIRECTORY_RECORD_SIGNATURE.codeUnits; // JPI - removed data.charCodes 
     final maxScanLength = 65536;
     final length = bytes.length;
     var position = length - signatureSize;
@@ -235,8 +240,8 @@ class Zip {
     // Start looping from the end of the data sequence.
     for (; position > length - maxScanLength && position > 0; position--) {
       // If we found the end of central directory record signature, return the current position.
-      if (listsAreEqual(signatureCodes, bytes.getRange(position, signatureSize))) {
-        return position;
+      if (listsAreEqual(signatureCodes, bytes.sublist(position, position + signatureSize))) { // JPI 
+       return position;
       }
     }
 
