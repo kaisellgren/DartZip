@@ -73,24 +73,24 @@ class LocalFileHeader {
     // file name (variable size)
     // extra field (variable size)
 
-    assert(chunk.getRange(0, 4) == Zip.LOCAL_FILE_HEADER_SIGNATURE);
+    // assert(chunk.sublist(0, 4) == Zip.LOCAL_FILE_HEADER_SIGNATURE); // JPI - removed temporarily
 
-    versionNeededToExtract = chunk.getRange(4, 2);
-    generalPurposeBitFlag = chunk.getRange(6, 2);
-    compressionMethod = chunk.getRange(8, 2);
-    lastModifiedFileTime = chunk.getRange(10, 2);
-    lastModifiedFileDate = chunk.getRange(12, 2);
-    crc32 = bytesToValue(chunk.getRange(14, 4));
-    compressedSize = bytesToValue(chunk.getRange(18, 4));
-    uncompressedSize = bytesToValue(chunk.getRange(22, 4));
-    filenameLength = bytesToValue(chunk.getRange(26, 2));
-    extraFieldLength = bytesToValue(chunk.getRange(28, 2));
-    filename = new String.fromCharCodes(chunk.getRange(30, filenameLength));
+    versionNeededToExtract = chunk.sublist(4, 4+2); // JPI 
+    generalPurposeBitFlag = chunk.sublist(6, 6+2); // JPI 
+    compressionMethod = chunk.sublist(8, 8+2); // JPI 
+    lastModifiedFileTime = chunk.sublist(10, 10+2); // JPI 
+    lastModifiedFileDate = chunk.sublist(12, 12+2); // JPI 
+    crc32 = bytesToValue(chunk.sublist(14, 14+4)); // JPI 
+    compressedSize = bytesToValue(chunk.sublist(18, 18+4)); // JPI 
+    uncompressedSize = bytesToValue(chunk.sublist(22, 22+4)); // JPI 
+    filenameLength = bytesToValue(chunk.sublist(26, 26+2)); // JPI 
+    extraFieldLength = bytesToValue(chunk.sublist(28, 28+2)); // JPI 
+    filename = new String.fromCharCodes(chunk.sublist(30, 30+filenameLength)); // JPI 
 
-    if (extraFieldLength) {
-      extraField = chunk.getRange(30 + filenameLength, extraFieldLength);
+    if (extraFieldLength>0) { // JPI 
+      extraField = chunk.sublist(30 + filenameLength, 30 + filenameLength + extraFieldLength); // JPI 
     }
 
-    content = chunk.getRange(30 + filenameLength + extraFieldLength, compressedSize);
+    content = chunk.sublist(30 + filenameLength + extraFieldLength, 30 + filenameLength + extraFieldLength + compressedSize); // JPI 
   }
 }

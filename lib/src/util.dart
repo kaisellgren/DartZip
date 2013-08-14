@@ -36,7 +36,7 @@ List<int> valueToBytes(int value, [int minByteCount = 0]) {
       break;
   } while (i < 4);
 
-  return bytes.getRange(0, max(minByteCount, actualByteCount));
+  return bytes.sublist(0, max(minByteCount, actualByteCount)); // JPI 
 }
 
 /**

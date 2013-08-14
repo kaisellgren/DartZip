@@ -109,27 +109,27 @@ class CentralDirectoryFileHeader {
     // 	extra field (variable size)
     // 	file comment (variable size)
 
-    versionMadeBy = chunk.getRange(4, 2);
-    versionNeededToExtract = chunk.getRange(6, 2);
-    generalPurposeBitFlag = chunk.getRange(8, 2);
-    compressionMethod = chunk.getRange(10, 2);
-    lastModifiedFileTime = chunk.getRange(12, 2);
-    lastModifiedFileDate = chunk.getRange(14, 2);
-    crc32 = bytesToValue(chunk.getRange(16, 4));
-    compressedSize = bytesToValue(chunk.getRange(20, 4));
-    uncompressedSize = bytesToValue(chunk.getRange(24, 4));
-    filenameLength = bytesToValue(chunk.getRange(28, 2));
-    extraFieldLength = bytesToValue(chunk.getRange(30, 2));
-    fileCommentLength = bytesToValue(chunk.getRange(32, 2));
-    diskNumberStart = bytesToValue(chunk.getRange(34, 2));
-    internalFileAttributes = bytesToValue(chunk.getRange(36, 2));
-    externalFileAttributes = bytesToValue(chunk.getRange(38, 4));
-    localHeaderOffset = bytesToValue(chunk.getRange(42, 4));
-    filename = new String.fromCharCodes(chunk.getRange(46, filenameLength));
-    extraField = chunk.getRange(46 + filenameLength, extraFieldLength);
-    fileComment = new String.fromCharCodes(chunk.getRange(46 + filenameLength + extraFieldLength, fileCommentLength));
+    versionMadeBy = chunk.sublist(4, 4+2); // JPI 
+    versionNeededToExtract = chunk.sublist(6, 6+2); // JPI 
+    generalPurposeBitFlag = chunk.sublist(8, 8+2); // JPI 
+    compressionMethod = chunk.sublist(10, 10+2); // JPI 
+    lastModifiedFileTime = chunk.sublist(12, 12+2); // JPI 
+    lastModifiedFileDate = chunk.sublist(14, 14+2); // JPI 
+    crc32 = bytesToValue(chunk.sublist(16, 16+4)); // JPI 
+    compressedSize = bytesToValue(chunk.sublist(20, 20+4)); // JPI 
+    uncompressedSize = bytesToValue(chunk.sublist(24, 24+4)); // JPI 
+    filenameLength = bytesToValue(chunk.sublist(28, 28+2)); // JPI 
+    extraFieldLength = bytesToValue(chunk.sublist(30, 30+2)); // JPI 
+    fileCommentLength = bytesToValue(chunk.sublist(32, 32+2)); // JPI 
+    diskNumberStart = bytesToValue(chunk.sublist(34, 34+2)); // JPI 
+    internalFileAttributes = bytesToValue(chunk.sublist(36, 36+2)); // JPI 
+    externalFileAttributes = bytesToValue(chunk.sublist(38, 38+4)); // JPI 
+    localHeaderOffset = bytesToValue(chunk.sublist(42, 42+4)); // JPI 
+    filename = new String.fromCharCodes(chunk.sublist(46, 46+filenameLength)); // JPI 
+    extraField = chunk.sublist(46 + filenameLength, 46 + filenameLength + extraFieldLength); // JPI 
+    fileComment = new String.fromCharCodes(chunk.sublist(46 + filenameLength + extraFieldLength, 46 + filenameLength + extraFieldLength + fileCommentLength)); // JPI 
 
     // TODO: Are there scenarios where LocalFileHeader.compressedSize != CentralDirectoryFileHeader.compressedSize?
-    localFileHeader = new LocalFileHeader.fromData(content.getRange(localHeaderOffset, content.length - localHeaderOffset));
+    localFileHeader = new LocalFileHeader.fromData(content.sublist(localHeaderOffset, localHeaderOffset + content.length - localHeaderOffset)); // JPI 
   }
 }
